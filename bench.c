@@ -56,6 +56,29 @@ void bench_print_summary(bench *b) {
     printf("%.2f i/sec\n", bench_iteration_speed(b) );
 }
 
+void bench_csv_write(char *filename, int countOfB, ...) {
+    FILE *fp = fopen(filename, "w");
+    if(!fp) {
+        return;
+    }
+
+    unsigned long ts = unixtime();
+    fprintf(fp, "%ld", ts);
+
+    int i;
+    bench * b;
+    va_list vl;
+    va_start(vl,countOfB);
+    for (i=0 ; i < countOfB ; i++) {
+        b = va_arg(vl, bench*);
+        fprintf(fp, ",%.2f", bench_iteration_speed(b) );
+    }
+    va_end(vl);
+
+    fprintf(fp, "\n");
+    fclose(fp);
+}
+
 /**
  * Combine multiple benchmark result into one measure entry.
  *
@@ -85,20 +108,19 @@ void bench_csv_append(char *filename, int countOfB, ...) {
     fclose(fp);
 }
 
-
-
+/*
 int main()
 {
-    MEASURE(tree_compile)
+    MEASURE(tree_compile, 3)
     // r3_tree_compile(n, NULL);
     END_MEASURE(tree_compile)
 
-    BENCHMARK(str_dispatch)
+    BENCHMARK(str_dispatch, 3)
     // r3_tree_matchl(n , "/qux/bar/corge", strlen("/qux/bar/corge"), NULL);
     END_BENCHMARK(str_dispatch)
     BENCHMARK_SUMMARY(str_dispatch);
 
-    BENCHMARK(pcre_dispatch)
+    BENCHMARK(pcre_dispatch,3 )
     // r3_tree_matchl(tree2, "/post/2014/12", strlen("/post/2014/12"), NULL);
     END_BENCHMARK(pcre_dispatch)
     BENCHMARK_SUMMARY(pcre_dispatch);
@@ -106,3 +128,4 @@ int main()
     BENCHMARK_CSV_APPEND("bench_str.csv", 4, BR(str_dispatch), BR(pcre_dispatch), BR(tree_compile), BR(str_match_entry) );
     return 0;
 }
+*/
